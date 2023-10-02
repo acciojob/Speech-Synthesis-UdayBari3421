@@ -2,73 +2,69 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Speech Synthesis</title>
-  <link href='https://fonts.googleapis.com/css?family=Pacifico' rel='stylesheet' type='text/css'>
+  <title>Text to Speech</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="voiceinator">
+  <div class="voiceinator">
 
-      <h1>The Voiceinator 5000</h1>
+    <h1>The Voiceinator 5000</h1>
 
-      <select name="voice" id="voices">
-        <option value="">Select A Voice</option>
-      </select>
+    <select name="voice" id="voices">
+      <option value="">Select A Voice</option>
+    </select>
 
-      <label for="rate">Rate:</label>
-      <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
+    <label for="rate">Rate:</label>
+    <input name="rate" type="range" min="0" max="3" value="1" step="0.1">
 
-      <label for="pitch">Pitch:</label>
+    <label for="pitch">Pitch:</label>
+    <input name="pitch" type="range" min="0" max="2" step="0.1">
 
-      <input name="pitch" type="range" min="0" max="2" step="0.1">
-      <textarea id="tt" name="text">Hello! I love JavaScript 👍</textarea>
-      <button id="stop">Stop!</button>
-      <button id="speak">Speak</button>
+    <textarea id="text-to-speak" name="text">Hello! I love JavaScript 👍</textarea>
 
-    </div>
+    <button id="stop">Stop!</button>
+    <button id="speak">Speak</button>
 
-<script>
+  </div>
+
   <script>
-  const msg = new SpeechSynthesisUtterance();
-  let voices = [];
-  const voicesDropdown = document.querySelector('[name="voice"]');
-  const options = document.querySelectorAll('[type="range"], [name="text"]');
-  const speakButton = document.querySelector('#speak');
-  const stopButton = document.querySelector('#stop');
-  
-  function populateVoices() {
-    voices = speechSynthesis.getVoices();
-    voicesDropdown.innerHTML = voices
-      .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
-      .join('');
-  }
+    const msg = new SpeechSynthesisUtterance();
+    let voices = [];
+    const voicesDropdown = document.querySelector('#voices');
+    const rateInput = document.querySelector('[name="rate"]');
+    const pitchInput = document.querySelector('[name="pitch"]');
+    const textToSpeak = document.querySelector('#text-to-speak');
+    const speakButton = document.querySelector('#speak');
+    const stopButton = document.querySelector('#stop');
 
-  function setVoice() {
-    msg.voice = voices.find(voice => voice.name === voicesDropdown.value);
-    toggle();
-  }
-
-  function toggle(startOver = true) {
-    speechSynthesis.cancel();
-    if (startOver) {
-      speechSynthesis.speak(msg);
+    function populateVoices() {
+      voices = speechSynthesis.getVoices();
+      voicesDropdown.innerHTML = voices
+        .map(voice => `<option value="${voice.name}">${voice.name} (${voice.lang})</option>`)
+        .join('');
     }
-  }
 
-  function setOption() {
-    msg[this.name] = this.value;
-    toggle();
-  }
+    function setVoice() {
+      msg.voice = voices.find(voice => voice.name === voicesDropdown.value);
+      toggle();
+    }
 
-  speechSynthesis.addEventListener('voiceschanged', populateVoices);
-  voicesDropdown.addEventListener('change', setVoice);
-  options.forEach(option => option.addEventListener('change', setOption));
-  speakButton.addEventListener('click', toggle);
-  stopButton.addEventListener('click', () => toggle(false));
-</script>
+    function toggle(startOver = true) {
+      speechSynthesis.cancel();
+      if (startOver) {
+        msg.text = textToSpeak.value;
+        msg.rate = parseFloat(rateInput.value);
+        msg.pitch = parseFloat(pitchInput.value);
+        speechSynthesis.speak(msg);
+      }
+    }
 
-</script>
+    speechSynthesis.addEventListener('voiceschanged', populateVoices);
+    voicesDropdown.addEventListener('change', setVoice);
+    speakButton.addEventListener('click', toggle);
+    stopButton.addEventListener('click', () => toggle(false));
+  </script>
 
 </body>
 </html>
